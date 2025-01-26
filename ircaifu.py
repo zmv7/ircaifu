@@ -115,9 +115,9 @@ def cmdhandler(irc, command, hostmask, args):
 			"role": "assistant",
 			"content": response.message.content
 		})
-
-		for part in textwrap.wrap(response.message.content, 235):
-			irc.send("PRIVMSG", target, part)
+		for line in response.message.content.split("\n"):
+			for part in textwrap.wrap(line, 248-len(target)):
+				irc.send("PRIVMSG", target, part)
 
 
 print("Ircaifu: Connected. Type IRC quotes here. /quit to disconnect.")
