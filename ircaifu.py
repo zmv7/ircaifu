@@ -57,7 +57,7 @@ def cmdhandler(irc, command, hostmask, args):
 		if not msg.strip():
 			return
 		if msg.startswith("!"):
-			if not hostmask[1] in admins:
+			if not user in admins:
 				irc.send("PRIVMSG", target, "Insufficient privileges!")
 				return
 			cmdwp = msg.split()
