@@ -34,5 +34,5 @@ model = llama3.1
 host = irc.libera.chat
 port = 6697
 channels = #ircaifu   #comma-separated channels to join when connecting
-admins = ~Zemtzov7    #comma-separated usernames(idents)
+admins = Zemtzov7    #comma-separated nicknames
 ```
