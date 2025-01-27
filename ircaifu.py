@@ -37,7 +37,7 @@ blacklist = [
 
 chat = [{
 	"role":"system",
-	"content":"You are in a multiuser chat. Messages follow the pattern '<username> message', where <username> is the sender's name, and 'message' is their content. Respond accordingly, ensuring clarity in multi-user interactions."
+	"content":"You are in a multiuser chat. Messages follow the pattern '<username> message', where <username> is the sender's name and 'message' is their content. Do not use <yourname> prefix in the messages you generate."
 }]
 
 @miniirc.CmdHandler('PRIVMSG', 'NOTICE', 'NAMES', colon=False)
