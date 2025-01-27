@@ -35,7 +35,10 @@ blacklist = [
 	"Auth",
 ]
 
-chat = []
+chat = [{
+	"role":"system",
+	"content":"You are in a multiuser chat. Messages follow the pattern '<username> message', where <username> is the sender's name, and 'message' is their content. Respond accordingly, ensuring clarity in multi-user interactions."
+}]
 
 @miniirc.CmdHandler('PRIVMSG', 'NOTICE', 'NAMES', colon=False)
 def cmdhandler(irc, command, hostmask, args):
@@ -44,10 +47,13 @@ def cmdhandler(irc, command, hostmask, args):
 	global chat, nick, model
 	target = args[0] == nick and hostmask[0] or args[0]
 	user = hostmask[0]
-	relay_match = re.match(r"^<([\w@]+)> ", args[1])
-	if relay_match:
-		user = relay_match.group(1)
-		args[1] = args[1][relay_match.end():]
+
+	if args[1].startswith('<'):
+		n: list[str] = args[1].split('> ', 1)
+		if len(n) > 1 and '>' not in n[0]:
+			user = f'{n[0][1:]}'
+			args[1]  = n[1].strip()
+		del n
 
 	if target in blacklist or user in blacklist:
 		return
