@@ -1,10 +1,8 @@
 import miniirc
 import ollama
 import re
-import os
 import textwrap
 import configparser
-import sys
 
 cfgfile = "ircaifu.ini"
 config = configparser.ConfigParser()
@@ -35,19 +33,25 @@ blacklist = [
 	"Auth",
 ]
 
-chat = [{
-	"role":"system",
+defchat = [{
+	"role":"user",
 	"content":"You are in a multiuser chat. Messages follow the pattern '<username> message', where <username> is the sender's name and 'message' is their content. Do not use <yourname> prefix in the messages you generate."
 }]
 
-@miniirc.CmdHandler('PRIVMSG', 'NOTICE', 'NAMES', colon=False)
+chat = defchat
+
+@miniirc.CmdHandler('PRIVMSG', 'NOTICE', colon=False)
 def cmdhandler(irc, command, hostmask, args):
 	if not args:
 		return
 	global chat, nick, model
-	target = args[0] == nick and hostmask[0] or args[0]
 	user = hostmask[0]
-
+	DM = False
+	if args[0].lower() == nick.lower():
+		if not user in admins:
+			return
+		DM = True
+	target = DM and hostmask[0] or args[0]
 	if args[1].startswith('<'):
 		n: list[str] = args[1].split('> ', 1)
 		if len(n) > 1 and '>' not in n[0]:
@@ -58,8 +62,8 @@ def cmdhandler(irc, command, hostmask, args):
 	if target in blacklist or user in blacklist:
 		return
 
-	if args[1].startswith((nick+", ",nick+": ")):
-		msg = re.sub(nick + ". ", "", args[1])
+	if DM or args[1].startswith((nick+", ",nick+": ")):
+		msg = DM and args[1] or re.sub(nick + ". ", "", args[1])
 		if not msg.strip():
 			return
 		if msg.startswith("!"):
@@ -93,7 +97,7 @@ def cmdhandler(irc, command, hostmask, args):
 					if len(params) > 1:
 						nick = params[1]
 						irc.quote("NICK "+nick)
-					chat = []
+					chat = defchat
 					irc.send("PRIVMSG", target, "Model has been set to "+model)
 					saveconf()
 				case "!getmodel":
@@ -104,7 +108,7 @@ def cmdhandler(irc, command, hostmask, args):
 						irc.quote("NICK "+nick)
 					saveconf()
 				case "!reset":
-					chat = []
+					chat = defchat
 					irc.send("PRIVMSG", target, "Context has been reset")
 				case "!quote" if len(params) > 0:
 					print(irc.quote(" ".join(params)))
