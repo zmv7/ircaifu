@@ -111,7 +111,7 @@ def cmdhandler(irc, command, hostmask, args):
 					chat = defchat
 					irc.send("PRIVMSG", target, "Context has been reset")
 				case "!quote" if len(params) > 0:
-					print(irc.quote(" ".join(params)))
+					irc.quote(" ".join(params))
 				case _:
 					irc.send("PRIVMSG", target, "Unknown command or wrong params!")
 			return
